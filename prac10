@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# Step 1: Create contacts.csv
+cat <<EOF > contacts.csv
+Name,Email
+Deveshree, deveshreedhobe2006@gmail.com
+EOF
+echo "contacts.csv created."
+
+# Step 2: Create template.txt
+cat <<EOF > template.txt
+Dear {{Name}},
+
+You're invited to a special event—let's make it an unforgettable experience together!
+
+Best regards,
+Your Company
+EOF
+echo "template.txt created."
+
+# Step 3: Create output folder
+OUTDIR="merged_emails"
+mkdir -p "$OUTDIR"
+
+# Step 4: Mail merge + preview + send
+echo -e "\nStarting mail merge and sending...\n"
+
+tail -n +2 contacts.csv | while IFS=',' read -r NAME EMAIL
+do
+  NAME=$(echo "$NAME" | sed 's/^ *//;s/ *$//;s/"//g')
+  EMAIL=$(echo "$EMAIL" | sed 's/^ *//;s/ *$//;s/"//g')
+  OUTPUT="$OUTDIR/${EMAIL}.txt"
+
+  sed "s/{{Name}}/${NAME}/g" template.txt > "$OUTPUT"
+
+  echo "Sending mail to: \"$NAME\" <${EMAIL}>"
+  echo "--------------------------------------"
+  cat "$OUTPUT"
+  echo "--------------------------------------"
+
+  # Simulated mail sending
+  echo "Sending..."
+  # Uncomment the next line to actually send email (requires 'mail' command)
+  # mail -s "Event Invitation" "$EMAIL" < "$OUTPUT"
+  echo "Sent to $EMAIL"
+  echo ""
+done
+
+echo "All mails sent & saved in '$OUTDIR/' folder."
